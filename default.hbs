@@ -24,9 +24,18 @@
 
     {{!-- The blog navigation links --}}
     {{navigation}}
+    
 
     <div class="site-wrapper">
 
+    <div class="top-bar">
+      <span class="go-home">
+          <a href="{{@blog.url}}">{{@blog.title}}</a>
+      </span>
+      <div id="site-search" class="site-search">
+        <input class="typeahead" type="text" placeholder="Search by title...">
+      </div>
+   </div>
         {{!-- All the main content gets inserted here, index.hbs, post.hbs, etc --}}
         {{{body}}}
 
@@ -46,6 +55,49 @@
     <script type="text/javascript" src="{{asset "js/jquery.fitvids.js"}}"></script>
     {{!-- The main JavaScript file for Casper --}}
     <script type="text/javascript" src="{{asset "js/index.js"}}"></script>
+    <script type="text/javascript" src="{{asset "js/typeahead.bundle.min.js"}}"></script>
+
+    <script>
+    //Wait for other things to be loaded so the site doesn't wait on the search
+    $(document).ready(function() {
+        //Go grab all the posts on the blog, but only the slug and title fields
+        //That helps limit the amount of data sent and stored locally
+        $.get(ghost.url.api('posts', {limit: "all", fields: "slug,title"})).done(function(data) {
+            //add all the data returned to a variable
+            var searchData = data.posts; 
+
+            //New bloodhound to make it searchable
+            var search = new Bloodhound({
+              datumTokenizer: Bloodhound.tokenizers.obj.whitespace('title'),
+              queryTokenizer: Bloodhound.tokenizers.whitespace,
+              local: searchData
+            });
+
+            //Build the typeahead
+            $('#site-search .typeahead').typeahead(null, {
+                  name: 'search',
+                  //source is the bloodhound variable
+                  source: search,
+                  templates: {
+                    empty: [
+                        '<div class="empty-message">',
+                        ' no results found',
+                        '</div>'
+                    ].join('\n'),
+                    suggestion: function(data) {
+                        return '<p><strong><a href="{{@blog.url}}/'+ data.slug + '">' + data.title + '</a></strong></p>';
+                    }
+                }
+            }); 
+
+            //Now show the search bar since getting data was successful
+            $('#site-search').show();
+        }).fail(function() {
+            //If the get request errors out, put an error in the console
+            console.log("Error getting Ghost API Data");
+        });
+    });
+    </script>
 
 </body>
 </html>

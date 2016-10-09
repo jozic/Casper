@@ -5,6 +5,7 @@ The default Casper theme for [Ghost](http://github.com/tryghost/ghost/) modified
 ## Changes compared to original Casper (v 1.3.1)
  - image posts on main page
  - disqus comments
+ - twitter typeahead search by post titles
  
 ## Build zip
 
