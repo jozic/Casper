@@ -8,7 +8,8 @@ The old classic Casper theme for [Ghost](http://github.com/tryghost/ghost/) modi
  - twitter typeahead search by post titles
  - Open Sans is used everywhere, no Merriweather (default Times New Roman in ios browsers is a deal breaker for serif fonts :( )
  - copyright line in the footer has hardcoded inception year
-
+ - tags page which lists all tags ad number of posts (ugly, but works)
+ 
 ## Build zip
 
 `zip -r ChocolateCasper.zip ChocolateCasper -x *.git*`
