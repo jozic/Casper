@@ -9,6 +9,7 @@ The old classic Casper theme for [Ghost](http://github.com/tryghost/ghost/) modi
  - Open Sans is used everywhere, no Merriweather (default Times New Roman in ios browsers is a deal breaker for serif fonts :( )
  - copyright line in the footer has hardcoded inception year
  - tags page which lists all tags ad number of posts (ugly, but works)
+ - all external links are open in new tab (target="_blank")
  
 ## Build zip
 
