@@ -665,6 +665,10 @@ body.nav-opened .site-wrapper {
     color: red;
     font-family: 'Finger Paint', cursive;
     margin: 10px 0 0 0;
+    -webkit-animation: fade-in-down 0.6s;
+    animation: fade-in-down 0.6s both;
+    -webkit-animation-delay: 0.2s;
+    animation-delay: 0.2s;
 }
 
 /* Big cover image on the home page */
