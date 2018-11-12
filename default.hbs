@@ -78,7 +78,8 @@
                   name: 'search',
                   //source is the bloodhound variable
                   source: search,
-		  limit: 10,
+		          limit: 10,
+		          display: function(selected) {return ''},
                   templates: {
                     empty: [
                         '<div class="empty-message">',
