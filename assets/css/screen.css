@@ -206,9 +206,6 @@ td, th{ padding: 0; }
     content: "\f602";
     font-size: 1.1em;
 }
-.icon-google-plus:before {
-    content: "\f603";
-}
 .icon-facebook:before {
     content: "\f604";
 }
@@ -1376,10 +1373,6 @@ body.page-template .post-title {
 .post-footer .share .icon-facebook:hover {
     color: #3b5998;
 }
-.post-footer .share .icon-google-plus:hover {
-    color: #dd4b39;
-}
-
 
 /* ==========================================================================
    6. Author profile
