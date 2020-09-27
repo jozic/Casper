@@ -12,7 +12,7 @@ The old classic Casper theme for [Ghost](http://github.com/tryghost/ghost/) modi
  - all external links are open in new tab (target="_blank")
  - updated to be compatible with Ghost 2.x
  - removed google+ share button
- - patreon button on each post
+ - `buy me coffee` button on each post
  
 ## Build zip
 
