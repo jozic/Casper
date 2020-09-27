@@ -15,8 +15,8 @@ The old classic Casper theme for [Ghost](http://github.com/tryghost/ghost/) modi
  - `buy me coffee` button on each post
  
 ## Build zip
-
-`zip -r ChocolateCasper.zip ChocolateCasper -x *.git*`
+In project directory
+`zip -r ChocolateCasper.zip . -x "\.*"`
 
 ## Copyright & License
 
