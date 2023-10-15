@@ -13,6 +13,7 @@ The old classic Casper theme for [Ghost](http://github.com/tryghost/ghost/) modi
  - updated to be compatible with Ghost 2.x
  - removed google+ share button
  - `buy me coffee` button on each post
+ - `#StandWithUkraine` banner on each post (instead of top bmc button)
  
 ## Build zip
 In project directory

@@ -1218,7 +1218,7 @@ body.page-template .post-title {
 
 .post-template .post-header,
 .page-template .post-header {
-   margin-bottom: 3.4rem;
+   #margin-bottom: 3.4rem;
 }
 
 .post-template .post-title,
@@ -1372,6 +1372,25 @@ body.page-template .post-title {
 }
 .post-footer .share .icon-facebook:hover {
     color: #3b5998;
+}
+
+.swu {
+    display: flex;
+    margin-top: 1em;
+    margin-bottom: 0.7em;
+    line-height: 35px !important;
+    height:auto !important;
+    text-align: center;
+    align-items: center;
+}
+
+.swu h4 {
+    padding: 7px 15px 7px 10px !important;
+}
+
+.swu img {
+    max-width:100%;
+    max-height:100%;
 }
 
 .bmc {
@@ -2156,7 +2175,7 @@ body.page-template .post-title {
 
     .post-template .post-header,
     .page-template .post-header {
-        margin-bottom: 2rem;
+        #margin-bottom: 2rem;
     }
 
     .post-template .post-date,
