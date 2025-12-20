@@ -14,7 +14,7 @@
         <p>{{excerpt words="26"}} <a class="read-more" href="{{url}}">&raquo;</a></p>
     </section>
     <footer class="post-meta">
-        {{#if primary_author.profile_image}}<img class="author-thumb" src="{{primary_author.profile_image}}" alt="{{primary_author.name}}" nopin="nopin" />{{/if}}
+        {{#if primary_author.profile_image}}<div class="author-thumb" style="background-image: url({{primary_author.profile_image}})"></div>{{/if}}
         {{primary_author.name}}
         {{tags prefix=" on "}}
         <time class="post-date" datetime="{{date format="YYYY-MM-DD"}}">{{date format="DD MMMM YYYY"}}</time>

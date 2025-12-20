@@ -13,9 +13,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     {{!-- Styles'n'Scripts --}}
-    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+    <link rel="stylesheet" type="text/css" href="{{asset "css/fonts.css"}}" />
     <link rel="stylesheet" type="text/css" href="{{asset "css/screen.css"}}" />
 
+    <style>
+        .tags-loader {
+          border: 4px solid #f3f3f3;
+          border-top: 4px solid #3498db;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          animation: spin 1s linear infinite;
+          margin: 50px auto;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+    </style>
 
     {{!-- Ghost outputs important style and meta data with this tag --}}
     {{ghost_head}}
@@ -30,7 +45,7 @@
 
     <div class="top-bar">
       <span class="go-home">
-          <a href="{{@blog.url}}">{{@blog.title}}</a>
+          <a href="{{@site.url}}">{{@site.title}}</a>
       </span>
       <div id="site-search" class="site-search">
         <input class="typeahead" type="text" placeholder="Search bars by name...">
@@ -41,15 +56,15 @@
 
         {{!-- The tiny footer at the very bottom --}}
         <footer class="site-footer clearfix">
-            <section class="copyright"><a href="{{@blog.url}}">{{@blog.title}}</a> &copy; 2016-{{date format="YYYY"}}</section>
+            <section class="copyright"><a href="{{@site.url}}">{{@site.title}}</a> &copy; 2016-{{date format="YYYY"}}</section>
             <section class="poweredby">Proudly published with <a href="https://ghost.org">Ghost</a></section>
         </footer>
 
     </div>
 
-    {{!-- jQuery needs to come before `{{ghost_foot}}` so that jQuery can be used in code injection --}}
-    <script type="text/javascript" src="//code.jquery.com/jquery-1.12.0.min.js"></script>
     {{!-- Ghost outputs important scripts and data with this tag --}}
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/@tryghost/content-api@latest/umd/content-api.min.js"></script>
     {{ghost_foot}}
     {{!-- Fitvids makes video embeds responsive and awesome --}}
     <script type="text/javascript" src="{{asset "js/jquery.fitvids.js"}}"></script>
@@ -58,46 +73,105 @@
     <script type="text/javascript" src="{{asset "js/typeahead.bundle.min.js"}}"></script>
 
     <script>
-    //Wait for other things to be loaded so the site doesn't wait on the search
     $(document).ready(function() {
-        //Go grab all the posts on the blog, but only the slug and title fields
-        //That helps limit the amount of data sent and stored locally
-        $.get(ghost.url.api('posts', {limit: "all", fields: "slug,title"})).done(function(data) {
-            //add all the data returned to a variable
-            var searchData = data.posts; 
-
-            //New bloodhound to make it searchable
-            var search = new Bloodhound({
-              datumTokenizer: Bloodhound.tokenizers.obj.whitespace('title'),
-              queryTokenizer: Bloodhound.tokenizers.whitespace,
-              local: searchData
-            });
-
-            //Build the typeahead
-            $('#site-search .typeahead').typeahead(null, {
-                  name: 'search',
-                  //source is the bloodhound variable
-                  source: search,
-		          limit: 10,
-		          display: function(selected) {return ''},
-                  templates: {
-                    empty: [
-                        '<div class="empty-message">',
-                        ' no results found',
-                        '</div>'
-                    ].join('\n'),
-                    suggestion: function(data) {
-                        return '<p><strong><a href="{{@blog.url}}/'+ data.slug + '">' + data.title + '</a></strong></p>';
-                    }
-                }
-            }); 
-
-            //Now show the search bar since getting data was successful
-            $('#site-search').show();
-        }).fail(function() {
-            //If the get request errors out, put an error in the console
-            console.log("Error getting Ghost API Data");
+        const api = new GhostContentAPI({
+            url: '{{@site.url}}',
+            key: 'GHOST_API_KEY_PLACEHOLDER',
+            version: "v5.0"
         });
+        const siteUrl = "{{@site.url}}";
+
+        // --- Title-only Search ---
+        if (!$('body').hasClass('page-tags')) {
+            async function fetchAllPostsForSearch() {
+                let allPosts = [];
+                let page = 1;
+                let response;
+                try {
+                    do {
+                        response = await api.posts.browse({ limit: 50, page: page, fields: "slug,title" });
+                        allPosts = allPosts.concat(response);
+                        page++;
+                    } while (response.meta.pagination.next);
+                } catch (error) {
+                    console.error("[Search] Error fetching posts:", error);
+                }
+                return allPosts;
+            }
+
+            fetchAllPostsForSearch().then((posts) => {
+                var postsHound = new Bloodhound({
+                    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('title'),
+                    queryTokenizer: Bloodhound.tokenizers.whitespace,
+                    local: posts
+                });
+
+                $('#site-search .typeahead').typeahead({
+                    hint: true, highlight: true, minLength: 1
+                }, {
+                    name: 'posts', source: postsHound, display: 'title', limit: 10,
+                    templates: {
+                        suggestion: function(data) {
+                            return '<p><strong><a href="'+ siteUrl +'/'+ data.slug + '">' + data.title + '</a></strong></p>';
+                        }
+                    }
+                });
+                $('#site-search').show();
+            }).catch((err) => { console.error("[Search] Error initializing:", err); });
+        }
+        
+        // --- All Tags on One Page Implementation ---
+        if ($('body').hasClass('page-tags')) {
+            async function fetchAllTagsWithCounts() {
+                let allTags = [];
+                let page = 1;
+                let response;
+                try {
+                    do {
+                        response = await api.tags.browse({
+                            limit: 50,
+                            page: page,
+                            include: 'count.posts',
+                            order: 'count.posts desc'
+                        });
+                        if (response && Array.isArray(response)) {
+                            const publicTags = response.filter(tag => !tag.name.startsWith('#'));
+                            allTags = allTags.concat(publicTags);
+                        } else {
+                            break; 
+                        }
+                        page++;
+                    } while (response && response.meta && response.meta.pagination && response.meta.pagination.next);
+                } catch (error) {
+                    console.error("[Tags Page] Error during API call for tags:", error);
+                }
+                return allTags;
+            }
+
+            fetchAllTagsWithCounts().then((tags) => {
+                const container = $('#all-tags-container');
+                container.empty(); // Remove the loader
+
+                if (container.length === 0) { return; }
+                if (!tags || tags.length === 0) {
+                    container.append('<p>No tags found.</p>');
+                    return;
+                }
+
+                tags.forEach(tag => {
+                    const postCount = (tag.count && tag.count.posts) ? tag.count.posts : 0;
+                    const tagHtml = `
+                        <a href="${siteUrl}/tag/${tag.slug}">
+                        <h2>${tag.name} <small>(${postCount})</small></h2>
+                        </a>
+                    `;
+                    container.append(tagHtml);
+                });
+            }).catch((err) => { 
+                $('#all-tags-container').empty().append('<p>Error loading tags.</p>');
+                console.error("[Tags Page] Error rendering tags:", err); 
+            });
+        }
     });
     </script>
     <script>
